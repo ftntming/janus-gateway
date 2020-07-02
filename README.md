@@ -44,18 +44,11 @@ Additionally, you'll need the following libraries and tools:
 * [pkg-config](http://www.freedesktop.org/wiki/Software/pkg-config/)
 * [gengetopt](http://www.gnu.org/software/gengetopt/)
 
-All of those libraries are usually available on most of the most common distributions. Installing these libraries on a recent Fedora, for instance, is very simple:
-
-    yum install libmicrohttpd-devel jansson-devel \
-       openssl-devel libsrtp-devel sofia-sip-devel glib2-devel \
-       opus-devel libogg-devel libcurl-devel pkgconfig gengetopt \
-       libconfig-devel libtool autoconf automake
-
-Notice that you may have to `yum install epel-release` as well if you're attempting an installation on a CentOS machine instead.
+## This installation document is for Ubuntu 18.04.4 LTS
 
 On Ubuntu or Debian, it would require something like this:
 
-	aptitude install libmicrohttpd-dev libjansson-dev \
+	sudo apt-get install libmicrohttpd-dev libjansson-dev \
 		libssl-dev libsrtp-dev libsofia-sip-ua-dev libglib2.0-dev \
 		libopus-dev libogg-dev libcurl4-openssl-dev liblua5.3-dev \
 		libconfig-dev pkg-config gengetopt libtool automake
@@ -64,6 +57,7 @@ On Ubuntu or Debian, it would require something like this:
 
 While `libnice` is typically available in most distros as a package, the version available out of the box in Ubuntu is known to cause problems. As such, we always recommend manually compiling and installing the master version of libnice.
 To build libnice, you need Python 3, Meson and Ninja:
+**Note: the Meson installed by "apt-get" gives error. Try "pip3 install meson" instead**
 
 	git clone https://gitlab.freedesktop.org/libnice/libnice
 	cd libnice
@@ -72,14 +66,6 @@ To build libnice, you need Python 3, Meson and Ninja:
 * *Note:* Make sure you remove the distro version first, or you'll cause conflicts between the installations. In case you want to keep both for some reason, for custom installations of libnice you can also run `pkg-config --cflags --libs nice` to make sure Janus can find the right installation. If that fails, you may need to set the `PKG_CONFIG_PATH` environment variable prior to compiling Janus, e.g., `export PKG_CONFIG_PATH=/path/to/libnice/lib/pkgconfig`
 
 In case you're interested in compiling the sample Event Handler plugin, you'll need to install the development version of libcurl as well (usually `libcurl-devel` on Fedora/CentOS, `libcurl4-openssl-dev` on Ubuntu/Debian).
-
-If your distro ships a pre-1.5 version of libsrtp, you'll have to uninstall that version and [install 1.5.x, 1.6.x or 2.x manually](https://github.com/cisco/libsrtp/releases). In fact, 1.4.x is known to cause several issues with WebRTC. Installation of version 1.5.4 is quite straightforward:
-
-	wget https://github.com/cisco/libsrtp/archive/v1.5.4.tar.gz
-	tar xfv v1.5.4.tar.gz
-	cd libsrtp-1.5.4
-	./configure --prefix=/usr --enable-openssl
-	make shared_library && sudo make install
 
 The instructions for version 2.x are practically the same. Notice that the following steps are for version 2.2.0, but there may be more recent versions available:
 
@@ -96,6 +82,7 @@ The Janus configure script autodetects which one you have installed and links to
 * *Note:* when installing libsrtp, no matter which version, you may need to pass `--libdir=/usr/lib64` to the configure script if you're installing on a x86_64 distribution.
 
 If you want to make use of BoringSSL instead of OpenSSL (e.g., because you want to take advantage of `--enable-dtls-settimeout`), you'll have to manually install it to a specific location. Use the following steps:
+****Note: goland is required "sudo apt-get install golang"
 
 	git clone https://boringssl.googlesource.com/boringssl
 	cd boringssl
@@ -151,7 +138,7 @@ The same applies for Eclipse Paho MQTT C client library, which is needed for the
 
 In case you're interested in Nanomsg support, you'll need to install the related C library. It is usually available as an easily installable package in pretty much all repositories. The following is an example on how to install it on Ubuntu:
 
-	aptitude install libnanomsg-dev
+	sudo apt-get install libnanomsg-dev
 
 Finally, the same can be said for rabbitmq-c as well, which is needed for the optional RabbitMQ support. In fact, several different versions of the library can be found, and the versions usually available in most distribution repositories are not up-do-date with respect to the current state of the development. As such, if you're interested in integrating RabbitMQ queues as an alternative (or replacement) to HTTP and/or WebSockets to control Janus, you can install the latest version with the following steps:
 
@@ -170,13 +157,9 @@ To conclude, should you be interested in building the Janus documentation as wel
 * [Doxygen](http://www.doxygen.org)
 * [Graphviz](http://www.graphviz.org/)
 
-On Fedora:
-
-	yum install doxygen graphviz
-
 On Ubuntu/Debian:
 
-	aptitude install doxygen graphviz
+	sudo apt-get install doxygen graphviz
 
 
 ## Compile
@@ -213,32 +196,17 @@ If Doxygen and graphviz are available, the process can also build the documentat
 
 You can also selectively enable/disable other features (e.g., specific plugins you don't care about, or whether or not you want to build the recordings post-processor). Use the --help option when configuring for more info.
 
-
-### Building on MacOS
-While most of the above instructions will work when compiling Janus on MacOS as well, there are a few aspects to highlight when doing that.
-
-First of all, you can use `brew` to install most of the dependencies:
-
-	brew install jansson libnice openssl srtp libusrsctp libmicrohttpd \
-		libwebsockets cmake rabbitmq-c sofia-sip opus libogg curl glib \
-		libconfig pkg-config gengetopt autoconf automake libtool
-
-For what concerns libwebsockets, though, make sure that the installed version is higher than `2.4.1`, or you might encounter the problems described in [this post](https://groups.google.com/forum/#!topic/meetecho-janus/HsFaEXBz4Cg). If `brew` doesn't provide a more recent version, you'll have to install the library manually.
-
-Notice that you may need to provide a custom `prefix` and `PKG_CONFIG_PATH` when configuring Janus as well, e.g.:
-
-	./configure --prefix=/usr/local/janus PKG_CONFIG_PATH=/usr/local/opt/openssl/lib/pkgconfig
-
-Everything else works exactly the same way as on Linux.
-
 ## Configure and start
+After "make install", janus is installed to /opt/janus.
+<installdir> is /opt/janus
+
 To start the server, you can use the `janus` executable. There are several things you can configure, either in a configuration file:
 
-	<installdir>/etc/janus/janus.jcfg
+	/opt/janus/etc/janus/janus.jcfg
 
 or on the command line:
 
-	<installdir>/bin/janus --help
+	/opt/janus/bin/janus --help
 
 	Usage: janus [OPTIONS]...
 
@@ -324,7 +292,7 @@ or on the command line:
 
 Options passed through the command line have the precedence on those specified in the configuration file. To start the server, simply run:
 
-	<installdir>/bin/janus
+	sudo /opt/janus/bin/janus
 
 This will start the server, and have it look at the configuration file.
 
@@ -332,10 +300,57 @@ Make sure you have a look at all of the configuration files, to tailor Janus to 
 
 To test whether it's working correctly, you can use the demos provided with this package in the `html` folder: these are exactly the same demos available online on the [project website](http://janus.conf.meetecho.com/). Just copy the file it contains in a webserver, or use a userspace webserver to serve the files in the `html` folder (e.g., with php or python), and open the `index.html` page in either Chrome or Firefox. A list of demo pages exploiting the different plugins will be available. Remember to edit the transport/port details in the demo JavaScript files if you changed any transport-related configuration from its defaults. Besides, the demos refer to the pre-configured plugin resources, so if you add some new resources (e.g., a new videoconference) you may have to tweak the demo pages to actually use them.
 
-## Documentation
-Janus is thoroughly documented. You can find the current documentation, automatically generated with Doxygen, on the [project website](http://janus.conf.meetecho.com/docs/).
+## Generate Self Sign Certificates
 
-## Help us!
-Any thought, feedback or (hopefully not!) insult is welcome!
+Generate
+```
+sudo mkdir -p /opt/janus/share/janus/certs
+cd /opt/janus/share/janus/certs
+sudo openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 \
+  -keyout mycert.key -out mycert.pem
+mingli@mingli-virtual-machine:/opt/janus/share/janus/certs$ ls
+mycert.key  mycert.pem
+```
 
-Developed by [@meetecho](https://github.com/meetecho)
+### Modify Config files
+```
+/opt/janus/etc/janus/janus.jcfg:
+  173  # but RSA generation is still supported if you set 'rsa_private_key' to 'true'.
+  174  certificates: {
+  175: 	cert_pem = "/opt/janus/share/janus/certs/mycert.pem"
+  176  	cert_key = "/opt/janus/share/janus/certs/mycert.key"
+  177  	#cert_pwd = "secretpassphrase"
+/opt/janus/etc/janus/janus.transport.http.jcfg:
+   61  # 'ciphers' property accordingly (no limitation by default).
+   62  certificates: {
+   63: 	cert_pem = "/opt/janus/share/janus/certs/mycert.pem"
+   64  	cert_key = "/opt/janus/share/janus/certs/mycert.key"
+   65  	#cert_pwd = "secretpassphrase"
+```
+
+## Allow IP Access and HTTPS
+sudo vi '/opt/janus/etc/janus/janus.transport.http.jcfg'
+Modify interface to your real ethernet device ID. e.g. in my case, my ifconfig shows device is "ens33"
+so I have
+```
+interface = "ens33"
+https = true
+secure_port = 8089
+secure_interface = "ens33"
+```
+
+## Run Janus Demo
+### Dependency
+```
+npm install -g local-web-server
+```
+
+### Start local demo 
+```
+cd janus-gateway/html
+ws --http2 --port=9090
+Listening on https://mingli-virtual-machine:9090, https://127.0.0.1:9090, https://<your-ifconfig-ip>:9090
+```
+Access https://<your-ifconfig-ip>:9090/videoroomtest.html
+
+
