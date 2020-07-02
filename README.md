@@ -57,7 +57,7 @@ On Ubuntu or Debian, it would require something like this:
 
 While `libnice` is typically available in most distros as a package, the version available out of the box in Ubuntu is known to cause problems. As such, we always recommend manually compiling and installing the master version of libnice.
 To build libnice, you need Python 3, Meson and Ninja:
-**Note: the Meson installed by "apt-get" gives error. Try "pip3 install meson" instead**
+**Note: the Meson installed by "apt-get" gives error. Try "pip3 install -g meson" instead**
 
 	git clone https://gitlab.freedesktop.org/libnice/libnice
 	cd libnice
@@ -351,6 +351,5 @@ cd janus-gateway/html
 ws --http2 --port=9090
 Listening on https://mingli-virtual-machine:9090, https://127.0.0.1:9090, https://<your-ifconfig-ip>:9090
 ```
-Access https://<your-ifconfig-ip>:9090/videoroomtest.html
-
+Access https://your-ifconfig-ip:9090/videoroomtest.html
 
